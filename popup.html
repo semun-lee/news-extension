@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>News Background Knowledge</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 10px;
+    }
+    button {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .api-key-section {
+      margin: 10px 0;
+    }
+    .api-key-section input {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .status-message {
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 4px;
+      display: none;
+    }
+    .success {
+      background-color: #dff0d8;
+      color: #3c763d;
+    }
+    .error {
+      background-color: #f2dede;
+      color: #a94442;
+    }
+  </style>
+</head>
+<body>
+  <h2>News Background Knowledge</h2>
+  <div class="api-key-section">
+    <label for="apiKey">OpenAI API Key:</label>
+    <input type="password" id="apiKey" placeholder="Enter your API key">
+    <button id="saveApiKey">Save API Key</button>
+  </div>
+  <div id="statusMessage" class="status-message"></div>
+  <button id="toggleSidebar">Toggle Sidebar</button>
+  <script src="popup.js"></script>
+</body>
+</html>
