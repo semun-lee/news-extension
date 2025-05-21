@@ -1,8 +1,8 @@
 // Load saved API key when popup opens
 document.addEventListener('DOMContentLoaded', () => {
-  chrome.storage.sync.get('openai_api_key', (data) => {
-    if (data.openai_api_key) {
-      document.getElementById('apiKey').value = data.openai_api_key;
+  chrome.storage.sync.get('gemini_api_key', (data) => { // Changed 'openai_api_key' to 'gemini_api_key'
+    if (data.gemini_api_key) { // Changed data.openai_api_key to data.gemini_api_key
+      document.getElementById('apiKey').value = data.gemini_api_key; // Changed data.openai_api_key to data.gemini_api_key
     }
   });
 });
@@ -56,7 +56,8 @@ document.getElementById('toggleSidebar').addEventListener('click', async () => {
       const title = document.querySelector('h1')?.textContent || '';
       const paragraphs = Array.from(article.querySelectorAll('p'))
         .map(p => p.textContent)
-        .join('\n');
+        .join('
+');
 
       return {
         title,
