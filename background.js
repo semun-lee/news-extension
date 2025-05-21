@@ -2,15 +2,16 @@
 chrome.runtime.onInstalled.addListener(() => {
   console.log('Extension installed');
   // Initialize storage with empty API key
-  chrome.storage.sync.set({ 'openai_api_key': '' });
+  chrome.storage.sync.set({ 'gemini_api_key': '' });
 });
 
 // Function to process news content and get background information
 async function processNewsContent(content) {
   try {
-    const apiKey = await chrome.storage.sync.get('openai_api_key');
-    if (!apiKey.openai_api_key) {
-      return 'Please set your OpenAI API key in the extension popup settings.';
+    const apiKeyData = await chrome.storage.sync.get('gemini_api_key');
+    const apiKey = apiKeyData.gemini_api_key;
+    if (!apiKey) {
+      return 'Please set your Gemini API key in the extension popup settings.';
     }
 
     const prompt = `
@@ -24,38 +25,35 @@ async function processNewsContent(content) {
       Provide the background information in a clear, concise format.
     `;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const geminiRequestBody = {
+      contents: [{
+        parts: [{ text: prompt }]
+      }]
+    };
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey.openai_api_key}`
       },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a helpful assistant that provides background information and context for news articles.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 500
-      })
+      body: JSON.stringify(geminiRequestBody)
     });
 
     if (!response.ok) {
-      throw new Error('API request failed');
+      const errorData = await response.json();
+      console.error('Gemini API request failed:', errorData);
+      throw new Error('Gemini API request failed');
     }
 
     const data = await response.json();
-    return data.choices[0].message.content;
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
+      console.error('Invalid response structure from Gemini API:', data);
+      return 'Error processing response from Gemini API. Please check the console for details.';
+    }
+    return data.candidates[0].content.parts[0].text;
   } catch (error) {
     console.error('Error fetching background information:', error);
-    return 'Error fetching background information. Please try again later.';
+    return 'Error fetching background information. Please try again later. Check the console for more details.';
   }
 }
 
@@ -70,7 +68,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         });
       });
   } else if (request.action === "setApiKey") {
-    chrome.storage.sync.set({ 'openai_api_key': request.apiKey }, () => {
+    chrome.storage.sync.set({ 'gemini_api_key': request.apiKey }, () => {
       sendResponse({ success: true });
     });
     return true; // Required for async response
